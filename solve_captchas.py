@@ -1,19 +1,18 @@
 #!/usr/bin/env python3
 
-from multiprocessing.managers import BaseManager
 from asyncio import get_event_loop, sleep
-from random import uniform
+from multiprocessing.managers import BaseManager
 from time import time
 
-from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By
 from aiopogo import PGoApi, close_sessions, activate_hash_server, exceptions as ex
 from aiopogo.auth_ptc import AuthPtc
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 
-from monocle import sanitized as conf
-from monocle.utils import random_altitude, get_device_info, get_address, randomize_point
+from monocle import altitudes, sanitized as conf
+from monocle.utils import get_device_info, get_address, randomize_point
 from monocle.bounds import center
 
 
@@ -32,20 +31,14 @@ async def solve_captcha(url, api, driver, timestamp):
 
     for attempt in range(-1, conf.MAX_RETRIES):
         try:
-            response = await request.call()
-            return response['responses']['VERIFY_CHALLENGE']['success']
+            responses = await request.call()
+            return responses['VERIFY_CHALLENGE'].success
         except (ex.HashServerException, ex.MalformedResponseException, ex.ServerBusyOrOfflineException) as e:
             if attempt == conf.MAX_RETRIES - 1:
                 raise
             else:
                 print('{}, trying again soon.'.format(e))
                 await sleep(4)
-        except ex.NianticThrottlingException:
-            if attempt == conf.MAX_RETRIES - 1:
-                raise
-            else:
-                print('Throttled, trying again in 11 seconds.')
-                await sleep(11)
         except (KeyError, TypeError):
             return False
 
@@ -72,13 +65,13 @@ async def main():
             if location and location != (0,0,0):
                 lat = location[0]
                 lon = location[1]
-                try:
-                    alt = location[2]
-                except IndexError:
-                    alt = random_altitude()
             else:
                 lat, lon = randomize_point(center, 0.0001)
-                alt = random_altitude()
+
+            try:
+                alt = altitudes.get((lat, lon))
+            except KeyError:
+                alt = await altitudes.fetch((lat, lon))
 
             try:
                 device_info = get_device_info(account)
@@ -86,14 +79,16 @@ async def main():
                 api.set_position(lat, lon, alt)
 
                 authenticated = False
-                if account.get('provider') == 'ptc' and account.get('refresh'):
-                    api._auth_provider = AuthPtc()
-                    api._auth_provider.set_refresh_token(account.get('refresh'))
-                    api._auth_provider._access_token = account.get('auth')
-                    api._auth_provider._access_token_expiry = account.get('expiry')
-                    if api._auth_provider.check_access_token():
-                        api._auth_provider._login = True
-                        authenticated = True
+                try:
+                    if account['provider'] == 'ptc':
+                        api.auth_provider = AuthPtc()
+                        api.auth_provider._access_token = account['auth']
+                        api.auth_provider._access_token_expiry = account['expiry']
+                        if api.auth_provider.check_access_token():
+                            api.auth_provider.authenticated = True
+                            authenticated = True
+                except KeyError:
+                    pass
 
                 if not authenticated:
                     await api.set_authentication(username=username,
@@ -105,19 +100,18 @@ async def main():
 
                 await sleep(.6)
 
-                request.download_remote_config_version(platform=1, app_version=5901)
+                request.download_remote_config_version(platform=1, app_version=6304)
                 request.check_challenge()
                 request.get_hatched_eggs()
-                request.get_inventory()
+                request.get_inventory(last_timestamp_ms=account.get('inventory_timestamp', 0))
                 request.check_awarded_badges()
                 request.download_settings()
-                response = await request.call()
+                responses = await request.call()
                 account['time'] = time()
 
-                responses = response['responses']
-                challenge_url = responses['CHECK_CHALLENGE']['challenge_url']
-                timestamp = responses.get('GET_INVENTORY', {}).get('inventory_delta', {}).get('new_timestamp_ms')
-                account['location'] = lat, lon, alt
+                challenge_url = responses['CHECK_CHALLENGE'].challenge_url
+                timestamp = responses['GET_INVENTORY'].inventory_delta.new_timestamp_ms
+                account['location'] = lat, lon
                 account['inventory_timestamp'] = timestamp
                 if challenge_url == ' ':
                     account['captcha'] = False

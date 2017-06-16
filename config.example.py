@@ -5,7 +5,7 @@ DB_ENGINE = 'sqlite:///db.sqlite'
 #DB_ENGINE = 'postgresql://user:pass@localhost/monocle
 
 AREA_NAME = 'SLC'     # the city or region you are scanning
-LANGUAGE = 'EN'       # ISO 639-1 codes EN, DE, ES, FR, IT, JA, KO, or ZH for Pokémon/move names
+LANGUAGE = 'EN'       # ISO 639-1 codes EN, DE, ES, FR, IT, JA, KO, PT, or ZH for Pokémon/move names
 MAX_CAPTCHAS = 100    # stop launching new visits if this many CAPTCHAs are pending
 SCAN_DELAY = 10       # wait at least this many seconds before scanning with the same account
 SPEED_UNIT = 'miles'  # valid options are 'miles', 'kilometers', 'meters'
@@ -90,14 +90,16 @@ SEARCH_SLEEP = 2.5
 ### these next 6 options use more requests but look more like the real client
 APP_SIMULATION = True     # mimic the actual app's login requests
 COMPLETE_TUTORIAL = True  # complete the tutorial process and configure avatar for all accounts that haven't yet
-INCUBATE_EGGS = False        # incubate eggs if available
+INCUBATE_EGGS = True      # incubate eggs if available
 
 ## encounter Pokémon to store IVs.
 ## valid options:
 # 'all' will encounter every Pokémon that hasn't been already been encountered
+# 'some' will encounter Pokémon if they are in ENCOUNTER_IDS or eligible for notification
 # 'notifying' will encounter Pokémon that are eligible for notifications
 # None will never encounter Pokémon
 ENCOUNTER = None
+#ENCOUNTER_IDS = (3, 6, 9, 45, 62, 71, 80, 85, 87, 89, 91, 94, 114, 130, 131, 134)
 
 # PokéStops
 SPIN_POKESTOPS = True  # spin all PokéStops that are within range
@@ -151,9 +153,7 @@ TRASH_IDS = (
 )
 
 # include these Pokémon on the "rare" report
-RARE_IDS = (
-    3, 6, 9, 45, 62, 71, 80, 85, 87, 89, 91, 94, 114, 130, 131, 134
-)
+RARE_IDS = (3, 6, 9, 45, 62, 71, 80, 85, 87, 89, 91, 94, 114, 130, 131, 134)
 
 from datetime import datetime
 REPORT_SINCE = datetime(2017, 2, 17)  # base reports on data from after this date
@@ -184,6 +184,9 @@ MAP_WORKERS = True
 # unix timestamp of last spawn point migration, spawn times learned before this will be ignored
 LAST_MIGRATION = 1481932800  # Dec. 17th, 2016
 
+# Treat a spawn point's expiration time as unknown if nothing is seen at it on more than x consecutive visits
+FAILURES_ALLOWED = 2
+
 ## Map data provider and appearance, previews available at:
 ## https://leaflet-extras.github.io/leaflet-providers/preview/
 #MAP_PROVIDER_URL = '//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
@@ -208,7 +211,7 @@ LAST_MIGRATION = 1481932800  # Dec. 17th, 2016
 # Enabling will (potentially drastically) increase memory usage.
 #CACHE_CELLS = False
 
-# Only for use with web-sanic (requires PostgreSQL)
+# Only for use with web_sanic (requires PostgreSQL)
 #DB = {'host': '127.0.0.1', 'user': 'monocle_role', 'password': 'pik4chu', 'port': '5432', 'database': 'monocle'}
 
 # Disable to use Python's event loop even if uvloop is installed
@@ -220,7 +223,7 @@ LAST_MIGRATION = 1481932800  # Dec. 17th, 2016
 ### FRONTEND CONFIGURATION
 LOAD_CUSTOM_HTML_FILE = False # File path MUST be 'templates/custom.html'
 LOAD_CUSTOM_CSS_FILE = False  # File path MUST be 'static/css/custom.css'
-LOAD_CUSTOM_JS_FILE = False  # File path MUST be 'static/js/custom.js'
+LOAD_CUSTOM_JS_FILE = False   # File path MUST be 'static/js/custom.js'
 
 #FB_PAGE_ID = None
 #TWITTER_SCREEN_NAME = None  # Username withouth '@' char
@@ -234,9 +237,11 @@ SHOW_TIMER = False  # Show remaining time on a label under each pokemon marker
 ### OPTIONS BELOW THIS POINT ARE ONLY NECESSARY FOR NOTIFICATIONS ###
 NOTIFY = False  # enable notifications
 
-# create images with Pokémon stats for Tweets
+# create images with Pokémon image and optionally include IVs and moves
 # requires cairo and ENCOUNTER = 'notifying' or 'all'
 TWEET_IMAGES = True
+# IVs and moves are now dependant on level, so this is probably not useful
+IMAGE_STATS = False
 
 # As many hashtags as can fit will be included in your tweets, these will
 # be combined with landmark-specific hashtags (if applicable).
