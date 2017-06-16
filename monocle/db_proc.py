@@ -1,5 +1,8 @@
+import sys
+
 from queue import Queue
 from threading import Thread
+from time import sleep
 
 from . import db
 from .shared import get_logger, LOOP
@@ -13,6 +16,9 @@ class DatabaseProcessor(Thread):
         self.running = True
         self.count = 0
         self._commit = False
+
+    def __len__(self):
+        return self.queue.qsize()
 
     def stop(self):
         self.update_mysteries()
@@ -43,6 +49,8 @@ class DatabaseProcessor(Thread):
                     db.add_fort_sighting(session, item)
                 elif item_type == 'pokestop':
                     db.add_pokestop(session, item)
+                elif item_type == 'target':
+                    db.update_failures(session, item['spawn_id'], item['seen'])
                 elif item_type == 'mystery-update':
                     db.update_mystery(session, item)
                 elif item_type is False:
@@ -53,6 +61,7 @@ class DatabaseProcessor(Thread):
                     self._commit = False
             except Exception as e:
                 session.rollback()
+                sleep(5.0)
                 self.log.exception('A wild {} appeared in the DB processor!', e.__class__.__name__)
         try:
             session.commit()
@@ -79,4 +88,4 @@ class DatabaseProcessor(Thread):
                }
                self.add(mystery)
 
-DB_PROC = DatabaseProcessor()
+sys.modules[__name__] = DatabaseProcessor()

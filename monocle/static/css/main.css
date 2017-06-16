@@ -244,3 +244,45 @@
     height:0px !important;
 }
 
+@media (min-width: 1025px){
+    #settings{
+        left: 20%;
+        height: 770px;
+    }
+    .settings-panel > .panel-body{
+        height: 595px;
+    }
+}
+
+.button-off{
+    background-color: #f11330;
+    border-color: red;
+}
+.button-off:hover,.button-off:focus,.button-off:active{
+    background-color: #f11430 ;
+    border-color: red;
+}
+
+.savebutton{
+    margin-top: 5px;
+}
+
+#saved{
+    color: darkred;
+}
+
+@media (max-width: 321px){
+    #menu.sprite span{
+        left: 44px
+    }
+}
+@media (max-width: 376px){
+    #menu.sprite span{
+        left: 74px
+    }
+}
+@media (max-width: 426px){
+    #menu.sprite span{
+        left: 97px
+    }
+}

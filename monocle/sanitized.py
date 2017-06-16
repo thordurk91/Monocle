@@ -39,6 +39,8 @@ _valid_types = {
     'DIRECTORY': path,
     'DISCORD_INVITE_ID': str,
     'ENCOUNTER': str,
+    'ENCOUNTER_IDS': set_sequence_range,
+    'FAILURES_ALLOWED': int,
     'FAVOR_CAPTCHA': bool,
     'FB_PAGE_ID': str,
     'FIXED_OPACITY': bool,
@@ -54,6 +56,7 @@ _valid_types = {
     'HEATMAP': bool,
     'IGNORE_IVS': bool,
     'IGNORE_RARITY': bool,
+    'IMAGE_STATS': bool,
     'INCUBATE_EGGS': bool,
     'INITIAL_SCORE': Number,
     'ITEM_LIMITS': dict,
@@ -83,6 +86,7 @@ _valid_types = {
     'NOTIFY': bool,
     'NOTIFY_IDS': set_sequence_range,
     'NOTIFY_RANKING': int,
+    'NOTIF_SOUND': int,
     'PASS': str,
     'PB_API_KEY': str,
     'PB_CHANNEL': int,
@@ -147,7 +151,9 @@ _defaults = {
     'DIRECTORY': '.',
     'DISCORD_INVITE_ID': None,
     'ENCOUNTER': None,
+    'ENCOUNTER_IDS': None,
     'FAVOR_CAPTCHA': True,
+    'FAILURES_ALLOWED': 2,
     'FB_PAGE_ID': None,
     'FIXED_OPACITY': False,
     'FORCED_KILL': None,
@@ -155,14 +161,15 @@ _defaults = {
     'GIVE_UP_KNOWN': 75,
     'GIVE_UP_UNKNOWN': 60,
     'GOOD_ENOUGH': 0.1,
-    'GOOGLE_MAPS_KEY': None,
+    'GOOGLE_MAPS_KEY': '',
     'HASHTAGS': None,
     'IGNORE_IVS': False,
     'IGNORE_RARITY': False,
-    'INCUBATE_EGGS': False,
+    'IMAGE_STATS': False,
+    'INCUBATE_EGGS': True,
     'INITIAL_RANKING': None,
     'ITEM_LIMITS': None,
-    'IV_FONT': None,
+    'IV_FONT': 'monospace',
     'LANDMARKS': None,
     'LANGUAGE': 'EN',
     'LAST_MIGRATION': 1481932800,
@@ -179,12 +186,13 @@ _defaults = {
     'MAX_RETRIES': 3,
     'MINIMUM_RUNTIME': 10,
     'MORE_POINTS': False,
-    'MOVE_FONT': None,
-    'NAME_FONT': None,
+    'MOVE_FONT': 'sans-serif',
+    'NAME_FONT': 'sans-serif',
     'NEVER_NOTIFY_IDS': (),
     'NOTIFY': False,
     'NOTIFY_IDS': None,
     'NOTIFY_RANKING': None,
+    'NOTIF_SOUND': 0,
     'PASS': None,
     'PB_API_KEY': None,
     'PB_CHANNEL': None,
@@ -230,6 +238,9 @@ _defaults = {
 
 
 class Config:
+    __spec__ = __spec__
+    __slots__ = tuple(_valid_types.keys()) + ('log',)
+
     def __init__(self):
         self.log = getLogger('sanitizer')
         for key, value in (x for x in vars(config).items() if x[0].isupper()):
@@ -260,6 +271,8 @@ class Config:
             setattr(self, name, default)
             return default
         except KeyError:
+            if name == '__path__':
+                return
             err = '{} not in config, and no default has been set.'.format(name)
             self.log.error(err)
             raise AttributeError(err)
