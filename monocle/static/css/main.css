@@ -247,13 +247,8 @@
 @media (min-width: 1025px){
     #settings{
         left: 20%;
-        height: 770px;
-    }
-    .settings-panel > .panel-body{
-        height: 595px;
     }
 }
-
 .button-off{
     background-color: #f11330;
     border-color: red;
@@ -271,18 +266,18 @@
     color: darkred;
 }
 
-@media (max-width: 321px){
+@media (max-width: 320px){
     #menu.sprite span{
-        left: 44px
+        left: 50px !important;
     }
 }
-@media (max-width: 376px){
+@media (max-width: 375px){
     #menu.sprite span{
-        left: 74px
+        left: 70px !important;
     }
 }
-@media (max-width: 426px){
+@media (max-width: 425px){
     #menu.sprite span{
-        left: 97px
+        left: 95px !important;
     }
 }
