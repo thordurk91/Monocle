@@ -244,6 +244,9 @@
     height:0px !important;
 }
 
+.notif-tab-panel #menu.sprite span{
+    left: 50px !important
+}
 @media (min-width: 1025px){
     #settings{
         left: 20%;
@@ -270,14 +273,23 @@
     #menu.sprite span{
         left: 50px !important;
     }
+    .notif-tab-panel #menu.sprite span{
+        left: 50px !important
+    }
 }
 @media (max-width: 375px){
     #menu.sprite span{
         left: 57px !important;
     }
+    .notif-tab-panel #menu.sprite span{
+        left: 50px !important
+    }
 }
 @media (max-width: 425px){
     #menu.sprite span{
         left: 57px !important;
+    }
+    .notif-tab-panel #menu.sprite span{
+        left: 50px !important
     }
 }

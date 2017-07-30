@@ -198,7 +198,8 @@ function PokemonMarker (raw) {
     }
     
     var userPreferenceNotif = getPreference('notif-'+raw.pokemon_id);
-	if(localStorage.distance || userPreferenceNotif === 'ultrarare'){
+    if(userPreferenceNotif === 'ultrarare') spawnNotification(raw);
+	else if(localStorage.distance {
 		if(userPreferenceNotif === 'rare' && checkCoords(raw.lat,raw.lon)){
 			spawnNotification(raw);
 		}
