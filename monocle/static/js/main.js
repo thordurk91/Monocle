@@ -199,7 +199,7 @@ function PokemonMarker (raw) {
     
     var userPreferenceNotif = getPreference('notif-'+raw.pokemon_id);
     if(userPreferenceNotif === 'ultrarare') spawnNotification(raw);
-	else if(localStorage.distance {
+	else if(localStorage.distance) {
 		if(userPreferenceNotif === 'rare' && checkCoords(raw.lat,raw.lon)){
 			spawnNotification(raw);
 		}
