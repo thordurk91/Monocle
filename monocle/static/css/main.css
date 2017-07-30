@@ -273,11 +273,11 @@
 }
 @media (max-width: 375px){
     #menu.sprite span{
-        left: 70px !important;
+        left: 57px !important;
     }
 }
 @media (max-width: 425px){
     #menu.sprite span{
-        left: 95px !important;
+        left: 57px !important;
     }
 }

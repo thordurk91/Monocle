@@ -198,7 +198,7 @@ function PokemonMarker (raw) {
     }
     
     var userPreferenceNotif = getPreference('notif-'+raw.pokemon_id);
-	if(localStorage.distance){
+	if(localStorage.distance || userPreferenceNotif === 'ultrarare'){
 		if(userPreferenceNotif === 'rare' && checkCoords(raw.lat,raw.lon)){
 			spawnNotification(raw);
 		}
@@ -233,7 +233,7 @@ function PokemonMarker (raw) {
         } else {
             overlays.Pokemon.removeLayer(marker);
             overlays.Pokemon.refreshClusters();
-            markers[marker.raw.id] = undefined;
+            delete markers[marker.raw.id];
             clearInterval(marker.opacityInterval);
         }
     }, 2500);
@@ -634,7 +634,9 @@ function populateSettingsPanels(){
         var partHtmlnotif = `<div class="text-center">
                 <div id="menu" class="sprite"><span class="sprite-`+i+`"></span></div>
                 <div class="btn-group" role="group" data-group="notif-`+i+`">
+                <button type="button" id="notifbutton" class="btn btn-default" data-id="`+i+`" data-value="ultrarare">Ignore Radius</button>
                   <button type="button" id="notifbutton" class="btn btn-default" data-id="`+i+`" data-value="rare">On</button>
+                  
                   <button type="button" id="notifbutton" class="btn btn-default" data-id="`+i+`" data-value="common">Off</button>
                 </div>
             </div>
@@ -676,6 +678,7 @@ function setSettingsDefaults(){
         item.children("button").removeClass("active").filter("[data-value='"+value+"']").addClass("active");
     });
     
+    //TODO add ultrare-default setting
     for (var i = 1; i <= _pokemon_count; i++){
         _defaultSettings['notif-'+i] = (_NotificationID.indexOf(i) > -1) ? "rare" : "common";
     };
