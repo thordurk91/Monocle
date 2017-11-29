@@ -1,5 +1,5 @@
 var _last_pokemon_id = 0;
-var _pokemon_count = 251;
+var _pokemon_count = 386;
 var _WorkerIconUrl = 'static/monocle-icons/assets/ball.png';
 var _PokestopIconUrl = 'static/monocle-icons/assets/stop.png';
 
@@ -26,8 +26,8 @@ var PokemonIcon = L.Icon.extend({
         if(showIV){
         div.innerHTML =
             '<div class="pokemarker">' +
-              '<div class="sprite">' +
-                   '<span class="sprite-' + this.options.iconID + '" /></span>' +
+              '<div class="pokeimg">' +
+                   '<img class="leaflet-marker-icon" src="' + this.options.iconUrl + '" />' +
               '</div>' +
               '<div class="remaining_text_iv '+ this.options.rare +'" id="iv'+this.options.ivrange +'">' + this.options.iv.toFixed(0) +'%</div>' +
               '<div class="remaining_text" data-expire="' + this.options.expires_at + '">' + calculateRemainingTime(this.options.expires_at) + '</div>' +
@@ -36,8 +36,8 @@ var PokemonIcon = L.Icon.extend({
         else{
         div.innerHTML =
             '<div class="pokemarker">' +
-              '<div class="sprite">' +
-                   '<span class="sprite-' + this.options.iconID + '" /></span>' +
+              '<div class="pokeimg">' +
+                   '<img class="leaflet-marker-icon" src="' + this.options.iconUrl + '" />' +
               '</div>' +
               '<div class="remaining_text" data-expire="' + this.options.expires_at + '">' + calculateRemainingTime(this.options.expires_at) + '</div>' +
             '</div>';
@@ -154,7 +154,7 @@ function PokemonMarker (raw) {
         else if(totaliv > 20) ivrange = 20;
         var icon = new PokemonIcon({iconUrl: '/static/monocle-icons/icons/' + raw.pokemon_id + '.png', ivrange: ivrange,rare: rare, iv: totaliv,expires_at: raw.expires_at});
 	}
-    else var icon = new PokemonIcon({iconID: raw.pokemon_id, expires_at: raw.expires_at});
+    else var icon = new PokemonIcon({iconUrl: '/static/monocle-icons/icons/' + raw.pokemon_id + '.png', iconID: raw.pokemon_id, expires_at: raw.expires_at});
     var marker = L.marker([raw.lat, raw.lon], {icon: icon, opacity: 1});
 
     var intId = parseInt(raw.id.split('-')[1]);
@@ -616,7 +616,7 @@ function populateSettingsPanels(){
     var newHtml = '';
     for (var i = 1; i <= _pokemon_count; i++){
         var partHtml = `<div class="text-center">
-                <div id="menu" class="sprite"><span class="sprite-`+i+`"></span></div>
+                <img src="static/monocle-icons/icons/`+i+`.png">
                 <div class="btn-group" role="group" data-group="filter-`+i+`">
                   <button type="button" class="btn btn-default" data-id="`+i+`" data-value="pokemon">Show</button>
                   <button type="button" class="btn btn-default" data-id="`+i+`" data-value="trash">Hide</button>
@@ -633,7 +633,7 @@ function populateSettingsPanels(){
     var newHtmlnotif = '';
     for (var i = 1; i <= _pokemon_count; i++){
         var partHtmlnotif = `<div class="text-center">
-                <div id="menu" class="sprite"><span class="sprite-`+i+`"></span></div>
+                <img src="static/monocle-icons/icons/`+i+`.png">
                 <div class="btn-group" role="group" data-group="notif-`+i+`">
                 <button type="button" id="notifbutton" class="btn btn-default" data-id="`+i+`" data-value="ultrarare">Ignore Radius</button>
                   <button type="button" id="notifbutton" class="btn btn-default" data-id="`+i+`" data-value="rare">On</button>
